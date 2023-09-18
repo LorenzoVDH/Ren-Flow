@@ -11,7 +11,8 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
             handleEdgeDeletion,
             nodeIdCount, setNodeIdCount,
             setFileSelectorIdCount, fileSelectorIdCount,
-            handleLastAppliedFileChange } = useRenFlow();
+            handleLastAppliedFileChange,
+            createSaveObject} = useRenFlow();
     const { getNodes, setNodes, getEdges, setEdges, setViewport } = useReactFlow();
 
     const handleNewFile = () => {
@@ -46,30 +47,6 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
         
         fileInput.click();
     }, [setNodes, setEdges, setViewport, onFileChange, handleProjectTitleChange]);
-    
-    const createSaveObject = () => {
-        const flow = rfInstance.toObject();
-        flow.nodeIdCount = nodeIdCount;
-        flow.fileSelectorIdCount = fileSelectorIdCount;
-        flow.fileExportItems = JSON.stringify(fileExportItems);
-        flow.projectTitle = projectTitle;
-
-        return JSON.stringify(flow);
-    }
-    
-    const handleSaveFile = useCallback(() => {
-        if (rfInstance) {
-            const saveJSON = createSaveObject();
-
-            const blob = new Blob([saveJSON], { type: 'application/json' });
-
-            if (projectTitle === undefined || projectTitle === null || projectTitle.trim() === '') {
-                window.alert("Please enter a project title.");
-            } else {
-                saveAs(blob, projectTitle);
-            }
-        }
-    }, [rfInstance, fileExportItems, projectTitle, nodeIdCount]);
     
     const handleExportFile = useCallback(() => {
         if (projectTitle === undefined || projectTitle === null || projectTitle.trim() === '') {
@@ -152,8 +129,23 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
         }
     }, [rfInstance, fileExportItems, projectTitle, nodeIdCount]);
     
+    const handleSaveFile = useCallback(() => {
+        if (projectTitle === undefined || projectTitle === null || projectTitle.trim() === '') {
+            window.alert("Please enter a project title.");
+            return;
+        }
+
+        if (rfInstance){
+            const saveJSON = createSaveObject();
+            const blob = new Blob([saveJSON], { type: 'application/json' });
+            saveAs(blob, projectTitle + ".json"); 
+        }
+    }, [rfInstance, projectTitle, nodeIdCount]);
 
     const setOpenFile = (flow) => {
+        setNodes([]);
+        setEdges([]);
+        onFileChange([]);
         const { x = 0, y = 0, zoom = 1 } = flow.viewport;
         flow.nodes.forEach((n) => {
             n.data = { ...n.data, onHandleDelete: handleEdgeDeletion };
@@ -169,11 +161,11 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'row' }}>
-            <button style={{ margin: '5px', flex: '1' }} onClick={handleNewFile}>New</button>
-            <button style={{ margin: '5px', flex: '1' }} onClick={handleSaveFile}>Save</button>
-            <button style={{ margin: '5px', flex: '1' }} onClick={handleOpenFile}>Open</button>
-            <button style={{ margin: '5px', flex: '1' }} onClick={handleExportFile}>Export</button>
+        <div style={{ width: '40%', display: 'flex', flexDirection: 'row' }}>
+            <button style={{ height: '60px', fontSize: '40px', textAlign: 'center',  margin: '5px', flex: '1' }} onClick={handleNewFile}>📄</button>
+            <button style={{ height: '60px', fontSize: '40px', textAlign: 'center',  margin: '5px', flex: '1' }} onClick={handleSaveFile}>💾</button>
+            <button style={{ height: '60px', fontSize: '40px', textAlign: 'center',  margin: '5px', flex: '1' }} onClick={handleExportFile}>⏏️</button>
+            <button style={{ height: '60px', fontSize: '40px', textAlign: 'center',  margin: '5px', flex: '1' }} onClick={handleOpenFile}>📁</button>
         </div>);
 }
 

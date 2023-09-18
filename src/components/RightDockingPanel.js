@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import DockingPanel from "./DockingPanel";
 import CodeEditorPanel from "./CodeEditorPanel";
 import { useRenFlow } from "./RenFlowContext";
@@ -9,7 +9,7 @@ const RightDockingPanel = ({ }) => {
         tabSize, globalCodeLanguage,
         handleOnAnyElementFocussed,
         selectedNode,
-        rightDockingPanelOpen, setRightDockingPanelOpen, 
+        rightDockingPanelOpen, 
         globalOutputNumber,
         handleGlobalOutputNumber,
         handleGlobalFileNameChange,
@@ -27,7 +27,9 @@ const RightDockingPanel = ({ }) => {
 
     const handleOutputChange = (e) => {
         let newValue = parseInt(e.target.value, 10); 
-        
+        if (newValue > 9){
+            return;
+        }
         handleGlobalOutputNumber(newValue); 
     };
 
@@ -70,6 +72,8 @@ const RightDockingPanel = ({ }) => {
                                         type='number' 
                                         value={globalOutputNumber} 
                                         onChange={e => handleOutputChange(e)} 
+                                        onFocus={() => handleOnAnyElementFocussed(true)}
+                                        onBlur={() => handleOnAnyElementFocussed(false)}
                                         min='1' 
                                         max='9'/>
                             </td>
@@ -90,7 +94,7 @@ const RightDockingPanel = ({ }) => {
     );
 
     return (
-        <DockingPanel  props={{ panelContentOpen }} side='right' panelOpen={rightDockingPanelOpen} panelWidth='30%' showFullPanel={true} />
+    <DockingPanel props={{ panelContentOpen }} side='right' panelOpen={rightDockingPanelOpen} panelWidth='40%' showFullPanel={true} controlButtonsSize='30px'/>
     );
 }
 

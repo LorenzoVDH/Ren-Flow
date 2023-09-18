@@ -1,9 +1,9 @@
-const ChangeableText = ({ text, onSetText, onElementFocussed }) => {
+const ChangeableText = ({ text, onSetText, onElementFocussed, fontSize }) => {
     return (
         <input 
             type='text' 
             spellCheck={false} 
-            style={{ width: '90%', margin: '10px', fontSize: '30px', border: 'none', backgroundColor: 'transparent' }} 
+            style={{ width: 'calc(100% - 30px)', margin: '10px', fontSize: fontSize, border: 'none', backgroundColor: 'transparent' }} 
             onChange={(e) => onSetText(e.target.value)} 
             value={text} 
             onFocus={() => onElementFocussed(true)} 

@@ -4,8 +4,7 @@ import { highlight } from "prismjs";
 import { useState } from "react";
 
 const CodeEditorPanel = ({ code, tabSize, setCode, language, elementFocussedHandler, notEnabled }) => {
-    const [showCodeEditorTextArea, setShowCodeEditorTextArea] = useState(true);
-    const { selectedNode } = useRenFlow();
+    //const [showCodeEditorTextArea, setShowCodeEditorTextArea] = useState(true);
 
 
     return (
@@ -16,7 +15,7 @@ const CodeEditorPanel = ({ code, tabSize, setCode, language, elementFocussedHand
                     <div style={{width: 'calc(100% - 15px)',  overflow: 'auto', height: '88%' }}>
                         <Editor
                             value={code}
-                            placeholder={ selectedNode ? "enter code here" : "select a node"}
+                            placeholder="nodecode"
                             tabSize={tabSize}
                             padding='5px'
                             onValueChange={(c) => setCode(c)}//code => setCodeInput(code)}

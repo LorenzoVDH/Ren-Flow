@@ -24,6 +24,9 @@ export default memo(({ id, data, selected, isConnectable }) => {
 
     const handleChangeNumberOfOutputs = (event) => {
         const newValue = Number(event.target.value);
+        if (newValue > 9){
+            return;
+        }
         setNumberOfOutputs(newValue);
         data.outputNumber = newValue;
     };
@@ -130,7 +133,7 @@ export default memo(({ id, data, selected, isConnectable }) => {
                             onKeyDown={(e) => handleKeyDown(e, document.getElementById('descriptionText'))}
                             onFocus={() => handleOnAnyElementFocussed(true)}
                             onBlur={() => handleOnAnyElementFocussed(false)}
-                            style={{ flex: 1, width: 'calc(100% - 10px)', fontSize: '11px', resize: 'none', fontFamily: 'Arial', textAlign: 'center' }}
+                            style={{ flex: 1, width: 'calc(100% - 10px)', fontSize: '12px', resize: 'none', fontFamily: 'Arial', textAlign: 'center' }}
                             hidden={showCode}
                             disabled={!selected}
                         />
@@ -152,7 +155,7 @@ export default memo(({ id, data, selected, isConnectable }) => {
                                 />
                             </div> : <></>)}
                     </>) :
-                    <div hidden={editMode} style={{ width: 'calc(100% - 30px)', textAlign: 'center', fontSize: '11px', fontFamily: 'Arial', letterSpacing: '-0.38px' }}>
+                    <div hidden={editMode} style={{ width: 'calc(100% - 30px)', textAlign: 'center', fontSize: '16px', fontFamily: 'Arial', letterSpacing: '-0.38px' }}>
                         {descriptionInput.split('\n').map((line, index) => (
                             <React.Fragment key={index}>
                                 {line}

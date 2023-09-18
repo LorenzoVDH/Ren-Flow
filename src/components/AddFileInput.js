@@ -25,7 +25,7 @@ const AddFileInput = ({fileExportItems, onFileChange}) => {
         }
 
         if (createFile) {
-            onFileChange([...fileExportItems, { id: id, name: fileName, color: randomColor, showColorPicker: false }]);
+            onFileChange([...fileExportItems, { id: id, name: fileName, color: randomColor, showColorPicker: false, visible: true }]);
         }
     }
 
@@ -44,13 +44,13 @@ const AddFileInput = ({fileExportItems, onFileChange}) => {
     return (
         <form onSubmit={(e) => onFileListSubmit(e)}>
             <input
-                style={{ width: '75%' }}
+                style={{ width: '100%', fontSize: '25px' }}
                 type='text'
                 value={inputFileListValue.trim()}
                 onChange={(e) => setInputFileListValue(e.target.value)}
                 onFocus={() => handleOnTabbableElementFocussed(true)}
                 onBlur={() => handleOnTabbableElementFocussed(false)} />
-            <button style={{ margin: '0px 15px' }} type='submit'>Add</button>
+            {/* <button style={{ width: '10%',  margin: '0px 15px', fontSize: '25px' }} type='submit'>+</button> */}
         </form>
     )
 }

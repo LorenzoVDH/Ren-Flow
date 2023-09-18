@@ -43,7 +43,7 @@ button {
 
 .react-flow .react-flow__edge path,
 .react-flow__connectionline path {
-  stroke-width: 2;
+  stroke-width: 7px;
 }
 
 .wrapper {

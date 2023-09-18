@@ -9,22 +9,13 @@ const FileExportList = ({fileExportItems, onFileChange}) => {
         textDarkenedShadePercentage,
         handleLastAppliedFileChange,
         selectedNode, setSelectedNode,
-        globalFileName, handleGlobalFileNameChange } = useRenFlow();
-    const { getNodes, setNodes, getEdges } = useReactFlow();
+        globalFileName, handleGlobalFileNameChange,
+        lastAppliedFile } = useRenFlow();
+    const { setEdges, getNodes, setNodes, getEdges } = useReactFlow();
 
     const onRenameFile = (e, id) => {
         const newFileName = e.target.value;        
         const nameToLookFor = fileExportItems.find(f => f.id === id).name;
-
-        // if (fileExportItems.some(f => f.name === newFileName)){
-        //     window.alert("A file with the same name already exists");
-        //     return;
-        // }
-
-        // if (newFileName.trim() === ""){
-        //     window.alert("File cannot be empty");
-        //     return;
-        // }
 
         const updatedNodes = getNodes().map((node) => {
             if (node.data.fileName === nameToLookFor) {
@@ -121,6 +112,63 @@ const FileExportList = ({fileExportItems, onFileChange}) => {
         handleLastAppliedFileChange(fileId);
     }
 
+    const onFileSetVisible = (fileId) => {
+        const newFileExportItems = fileExportItems.map((f) => {
+            if (f.id === fileId) {
+                return {
+                    ...f,
+                    visible: !f.visible
+                };
+            }
+            return f;
+        });
+    
+        const affectedFile = newFileExportItems.find((f) => f.id === fileId);
+    
+        console.log(affectedFile.visible);
+    
+        const updatedNodes = getNodes().map((node) => {
+            if (node.data.fileId === fileId) {
+                return {
+                    ...node,
+                    selected: false,
+                    data: {
+                        ...node.data,
+                    },
+                    style: {
+                        ...node.style,
+                        display: affectedFile?.visible ? 'block' : 'none'
+                    }
+                };
+            }
+            return node;
+        });
+    
+        const edges = getEdges();
+    
+        const updatedEdges = edges.map((edge) => {
+            const sourceNode = updatedNodes.find((node) => node.id === edge.source);
+            const targetNode = updatedNodes.find((node) => node.id === edge.target);
+            
+            if (sourceNode?.data.fileId === fileId || targetNode?.data.fileId === fileId) {
+                return {
+                    ...edge,
+                    selected: false, 
+                    style: {
+                        ...edge.style,
+                        display: affectedFile?.visible ? 'block' : 'none'
+                    }
+                };
+            }
+            return edge;
+        });
+    
+        setNodes(updatedNodes);
+        setEdges(updatedEdges); 
+        onFileChange(newFileExportItems);
+    }
+    
+
     const onSetColorPickerActive = (fileId) => {
         const updatedList = fileExportItems.map((file) => {
             if (file.id === fileId) {
@@ -168,26 +216,34 @@ const FileExportList = ({fileExportItems, onFileChange}) => {
 
     return (
         <>
-            <ul style={{ width: '100%', listStyleType: 'none', padding: '0px', margin: '10px 0px' }}>
+            <ul style={{ width: '99%', listStyleType: 'none', padding: '0px', margin: '10px 0px' }}>
                 {fileExportItems.map((item) => (
                     <li key={item.id} style={{ width: '100%', backgroundColor: item.color }}>
                         {/* {item.id} */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <input style={{ margin: '5px', width: '50%', backgroundColor: item.color }}
-                                type='text'
-                                value={item.name}
-                                onChange={(e) => onRenameFile(e, item.id)}
-                                onFocus={() => handleOnTabbableElementFocussed(true)}
-                                onBlur={() => handleOnTabbableElementFocussed(false)} />
-                            <div style={{ margin: '5px' }}>
-                                <button style={{ height: '24px' }} onClick={() => removeFileListItem(item.id)}>×</button>
-                                <button style={{ height: '24px' }} onClick={() => onSetColorPickerActive(item.id)}>🎨</button>
-                                <button style={{ height: '24px' }} onClick={() => onApplyExportFile(item.id)}>Apply</button>
-                            </div>
-                            <div style={{ margin: '5px' }}>
-                                <button style={{ height: '24px' }} onClick={() => onMoveFileOrder(item.id, 'up')}>↑</button>
-                                <button style={{ height: '24px' }} onClick={() => onMoveFileOrder(item.id, 'down')}>↓</button>
-                            </div>
+                        {/* <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        </div> */}
+                        <input
+                            style={{
+                                margin: '5px',
+                                fontSize: '30px',
+                                height: '40px',
+                                width: 'calc(100% - 10px)',
+                                backgroundColor: item.color,
+                                border: item.id === lastAppliedFile ? '3px dotted black' : 'none', // Add border style conditionally
+                            }}
+                            type='text'
+                            value={item.name}
+                            onChange={(e) => onRenameFile(e, item.id)}
+                            onFocus={() => handleOnTabbableElementFocussed(true)}
+                            onBlur={() => handleOnTabbableElementFocussed(false)}
+                        />
+                        <div style={{ maxWidth: '400px' }}>
+                            <button style={{ height: '45px', width: '15%', fontSize: '20px' }} onClick={() => removeFileListItem(item.id)}>🗑️</button>
+                            <button style={{ height: '45px', width: '15%', fontSize: '20px' }} onClick={() => onSetColorPickerActive(item.id)}>🎨</button>
+                            <button style={{ height: '45px', width: '15%', fontSize: '20px' }} onClick={() => onFileSetVisible(item.id)}>{item.visible ? "👁️‍🗨️" : "-"}</button>
+                            <button style={{ height: '45px', width: '25%', fontSize: '20px' }} onClick={() => onApplyExportFile(item.id)}>Set</button>
+                            <button style={{ height: '45px', width: '15%', fontSize: '20px' }} onClick={() => onMoveFileOrder(item.id, 'up')}>↑</button>
+                            <button style={{ height: '45px', width: '15%', fontSize: '20px' }} onClick={() => onMoveFileOrder(item.id, 'down')}>↓</button>
                         </div>
                         {item.showColorPicker && (
                             <HexColorPicker className='hidden' color={item.color} onChange={(c) => onChangeFileColor(c, item)} />
@@ -197,6 +253,7 @@ const FileExportList = ({fileExportItems, onFileChange}) => {
             </ul>
         </>
     );
+    
 }
 
 export default FileExportList; 

@@ -1,12 +1,14 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { useRef, createContext, useContext, useEffect, useState, useCallback } from 'react';
 import randomLightColour from '../helpers/RandomLightColour';
 import { useReactFlow, useOnSelectionChange } from 'reactflow';
 import { highlight, languages } from 'prismjs/components/prism-core';
+import darkenColour from '../helpers/DarkenColour';
+import { saveAs } from 'file-saver';
 
 const RenFlowContext = createContext();
 
 export function RenFlowProvider({ children }) {
-    const { getNodes, setNodes, getEdges, setEdges } = useReactFlow();
+    const { project, getZoom, getNodes, setNodes, getEdges, setEdges } = useReactFlow();
     const initialColors = [randomLightColour(), randomLightColour()];
     const [projectTitle, setProjectTitle] = useState('untitled');
     const [anyElementFocussed, setAnyElementFocussed] = useState(false);
@@ -14,9 +16,10 @@ export function RenFlowProvider({ children }) {
     const [fileList, setFileList] = useState([
         {
             id: 1,
-            name: "init",
+            name: "init.rpy",
             color: initialColors[0],
-            showColorPicker: false
+            showColorPicker: false,
+            visible: true
         }
     ]);
     const [textDarkenedShadePercentage, setTextDarkenedShadePercentage] = useState(10);
@@ -25,9 +28,10 @@ export function RenFlowProvider({ children }) {
     const [nodeIdCount, setNodeIdCount] = useState(1);
     const [rfInstance, setRfInstance] = useState(null); 
     const [globalCode, setGlobalCode] = useState('');
+    const [globalShowCode, setGlobalShowCode] = useState(false); 
     const [selectedNode, setSelectedNode] = useState(undefined);
     const [leftDockingPanelOpen, setLeftDockingPanelOpen] = useState(true); 
-    const [rightDockingPanelOpen, setRightDockingPanelOpen] = useState(true); 
+    const [rightDockingPanelOpen, setRightDockingPanelOpen] = useState(false); 
     const [globalOutputNumber, setGlobalOutputNumber] = useState(0);
     const [globalFileName, setGlobalFileName] = useState(""); 
     
@@ -56,6 +60,11 @@ export function RenFlowProvider({ children }) {
             setGlobalCode('');
         }
     };
+
+    useEffect(() => {
+        console.log("rfInstanceChange", rfInstance); 
+    }, [rfInstance, setRfInstance]);
+    
 
     const handleGlobalOutputNumber = (outputNumber) => {
         setGlobalOutputNumber(outputNumber);
@@ -98,6 +107,7 @@ export function RenFlowProvider({ children }) {
     }
 
     const handleRfInstanceChange = (instance) => {
+        console.log(instance); 
         setRfInstance(instance);
     }
 
@@ -105,6 +115,91 @@ export function RenFlowProvider({ children }) {
         const theEdges = getEdges();
         const filteredEdges = theEdges.filter((e) => e.sourceHandle?.toString() !== sourceHandleToRemove?.toString());
         setEdges(filteredEdges);
+    }
+
+    const handleGlobalShowCodeChange = () => {
+        setGlobalShowCode(!globalShowCode); 
+    }
+
+    const deleteNodeHandler = () => {
+        const deleteNode = () => {
+            setNodes((nds) => nds.filter((node) => !node.selected));
+        }
+        const deleteEdge = () => {
+            setEdges((edg) => edg.filter((edge) => !edge.selected));
+        };
+
+        const isNodeSelected = getNodes().some((node) => (node.selected && !node.data.textEditorFocussed));
+
+        if (!anyElementFocussed && !tabbableElementFocussed) {
+            
+            if (isNodeSelected) {
+                const userConfirmed = window.confirm("Would you like to delete this/these node(s)?");
+                if (userConfirmed) {
+                    deleteNode();
+                    deleteEdge();
+                }
+            } else {
+                deleteEdge();
+            }
+        }
+    }
+
+    const newNodeHandler = (event, reactFlowWrapper, createdFromButton) => {
+        const lastFile = fileList.find((file) => file.id === lastAppliedFile);
+        const targetIsPane = event.target.classList.contains('react-flow__pane');
+        const colour = lastFile ? lastFile.color : 'white';
+        const fileId = lastFile ? lastFile.id : -1;
+        console.log(lastFile);
+
+        if (targetIsPane || createdFromButton) {
+
+            if (!lastFile.visible){
+                window.alert("The selected file is not visible, can't add invisible nodes.");
+                return;
+            }
+
+            const { top, left } = reactFlowWrapper.current.getBoundingClientRect();
+            const id = getNewNodeId().toString();
+            let creationPositionX, creationPositionY;
+
+            if (createdFromButton) {
+                creationPositionX = window.innerWidth / 2;
+                creationPositionY = window.innerHeight / 2;
+            } else {
+                creationPositionX = event.clientX;
+                creationPositionY = event.clientY;
+            }
+            
+            const newNode = {
+                id: id,
+                position: project({ x: creationPositionX - left - (75 * getZoom()), y: creationPositionY - top - (32 * getZoom()) }),
+                type: 'sceneNode',
+                data: {
+                    label: `Node ${id}`,
+                    onHandleDelete: handleEdgeDeletion,
+                    codeInput: ``,
+                    showCode: globalShowCode,
+                    textEditorFocussed: false,
+                    textColor: darkenColour(colour, textDarkenedShadePercentage),
+                    fileId: fileId,
+                    outputNumber: 1
+                },
+                style: { width: 150, height: 64, backgroundColor: colour },
+            };
+
+            setNodes((nds) => nds.concat(newNode));
+        }
+    }
+    
+    const createSaveObject = () => {
+        const flow = rfInstance.toObject();
+        flow.nodeIdCount = nodeIdCount;
+        flow.fileSelectorIdCount = fileSelectorIdCount;
+        flow.fileExportItems = JSON.stringify(fileList);
+        flow.projectTitle = projectTitle;
+
+        return JSON.stringify(flow);
     }
 
     useOnSelectionChange({
@@ -123,9 +218,7 @@ export function RenFlowProvider({ children }) {
 
     const tab = '    ';
     const tabSize = tab.length;
-
     const globalCodeLanguage = languages.renpy;
-
     const providerValues = {
         projectTitle,
         handleProjectTitleChange,
@@ -150,6 +243,8 @@ export function RenFlowProvider({ children }) {
         getNewNodeId,
         globalCode,
         handleGlobalCodeChange,
+        globalShowCode,
+        handleGlobalShowCodeChange,
         tabSize,
         tab,
         globalCodeLanguage,
@@ -162,7 +257,10 @@ export function RenFlowProvider({ children }) {
         globalOutputNumber,
         handleGlobalOutputNumber,
         globalFileName,
-        handleGlobalFileNameChange
+        handleGlobalFileNameChange,
+        deleteNodeHandler,
+        newNodeHandler,
+        createSaveObject
     };
     
     return (
