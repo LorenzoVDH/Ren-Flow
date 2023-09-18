@@ -8,7 +8,7 @@ import LeftDockingPanel from "./components/LeftDockingPanel";
 import { RenFlowContext, RenFlowProvider, useRenFlow } from "./components/RenFlowContext";
 import RightDockingPanel from "./components/RightDockingPanel";
 import TouchActionsPanel from "./components/TouchActionsPanel";
-import { saveAs } from "file-saver";
+import Swal from "sweetalert2";
 
 const nodeTypes = {
   sceneNode: SceneNode
@@ -34,8 +34,7 @@ const StoryBuilderInteractive = () => {
           projectTitle,
           createSaveObject,
           rfInstance} = useRenFlow();
-
-
+  
   const handleEdgeDeletion = (sourceHandleToRemove) => {
     const theEdges = getEdges();
     const filteredEdges = theEdges.filter((e) => e.sourceHandle?.toString() !== sourceHandleToRemove?.toString());
@@ -139,13 +138,9 @@ const StoryBuilderInteractive = () => {
     console.log(sourceNode.data.fileId);
     console.log(targetNode.data.fileId);
 
-    // if (sourceNode.data.fileId != targetNode.data.fileId){
-    //   window.alert("Nodes need to be of the same file in order to be connected!");
-    //   return; 
-    // }
-
     if (sourceNode.id === targetNode.id){
-      window.alert("You can't connect a node to itself!");
+      
+      Swal.fire("You can't connect a node to itself!");
       return; 
     }
 
@@ -186,13 +181,6 @@ const StoryBuilderInteractive = () => {
         <TouchActionsPanel reactFlowWrapper={reactFlowWrapper} />
         <LeftDockingPanel />
         <RightDockingPanel /> 
-        {/* {showMultiOptions ?
-          <Panel position="top-center">
-            <button onClick={() => setExportOrder('x')}>Set Export Order By X</button>
-            <button onClick={() => setExportOrder('y')}>Set Export Order By Y</button>
-          </Panel> :
-          <></>
-        } */}
         {/* <Panel position={"bottom-right"}>
           <div>{nodeIdCount}</div>
         </Panel> */}

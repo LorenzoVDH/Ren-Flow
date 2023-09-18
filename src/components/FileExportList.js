@@ -3,6 +3,7 @@ import { useRenFlow } from "./RenFlowContext";
 import { useReactFlow } from "reactflow";
 import darkenColour from "../helpers/DarkenColour";
 import { saveAs } from 'file-saver';
+import Swal from "sweetalert2";
 
 const FileExportList = ({fileExportItems, onFileChange}) => {
     const { handleOnTabbableElementFocussed,
@@ -58,36 +59,45 @@ const FileExportList = ({fileExportItems, onFileChange}) => {
     };
 
     const removeFileListItem = (id) => {
-        if (fileExportItems.length === 1){
-            window.alert("Cannot delete the last file in the filelist");
-            return; 
+        if (fileExportItems.length === 1) {
+            Swal.fire("Cannot delete the last file in the filelist");
+            return;
         }
-        if (window.confirm('Would you like to delete this file?')) {
-            //const nameToLookFor = fileExportItems.find(f => f.id === id).name;
+        Swal.fire({
+            title: "Would you like to delete this file?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+            cancelButtonText: "No",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                //const nameToLookFor = fileExportItems.find(f => f.id === id).name;
 
-            const updatedNodes = getNodes().map((node) => {
-                if (node.data.fileId === id) {
-                    return {
-                        ...node,
-                        data: {
-                            ...node.data,
-                            fileName: '',
-                            textColor: darkenColour('#FFFFFF', textDarkenedShadePercentage)
-                        },
-                        style: {
-                            ...node.style,
-                            backgroundColor: 'white'
-                        }
-                    };
-                }
-                return node;
-            });
+                const updatedNodes = getNodes().map((node) => {
+                    if (node.data.fileId === id) {
+                        return {
+                            ...node,
+                            data: {
+                                ...node.data,
+                                fileName: '',
+                                textColor: darkenColour('#FFFFFF', textDarkenedShadePercentage)
+                            },
+                            style: {
+                                ...node.style,
+                                backgroundColor: 'white'
+                            }
+                        };
+                    }
+                    return node;
+                });
 
-            const updatedList = fileExportItems.filter((item) => item.id !== id);
+                const updatedList = fileExportItems.filter((item) => item.id !== id);
 
-            onFileChange(updatedList);
-            setNodes(updatedNodes);
-        }
+                onFileChange(updatedList);
+                setNodes(updatedNodes);
+            }
+        });
     }
 
     const onApplyExportFile = (fileId) => {

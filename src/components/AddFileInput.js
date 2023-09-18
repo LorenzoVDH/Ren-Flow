@@ -1,6 +1,7 @@
 import { useState } from "react";
 import randomLightColour from "../helpers/RandomLightColour";
 import { useRenFlow } from "./RenFlowContext";
+import Swal from "sweetalert2";
 
 const AddFileInput = ({fileExportItems, onFileChange}) => {
     const [inputFileListValue, setInputFileListValue] = useState('');
@@ -21,7 +22,7 @@ const AddFileInput = ({fileExportItems, onFileChange}) => {
         if (!fileNameExists) {
             createFile = true;
         } else {
-            window.confirm('This filename already exists.');
+            Swal.fire('This filename already exists.');
         }
 
         if (createFile) {

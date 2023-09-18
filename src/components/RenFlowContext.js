@@ -4,6 +4,7 @@ import { useReactFlow, useOnSelectionChange } from 'reactflow';
 import { highlight, languages } from 'prismjs/components/prism-core';
 import darkenColour from '../helpers/DarkenColour';
 import { saveAs } from 'file-saver';
+import Swal from "sweetalert2";
 
 const RenFlowContext = createContext();
 
@@ -132,13 +133,21 @@ export function RenFlowProvider({ children }) {
         const isNodeSelected = getNodes().some((node) => (node.selected && !node.data.textEditorFocussed));
 
         if (!anyElementFocussed && !tabbableElementFocussed) {
-            
+
             if (isNodeSelected) {
-                const userConfirmed = window.confirm("Would you like to delete this/these node(s)?");
-                if (userConfirmed) {
-                    deleteNode();
-                    deleteEdge();
-                }
+                Swal.fire({
+                    title: "Would you like to delete this/these node(s)?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        deleteNode();
+                        deleteEdge();
+                    }
+                });
             } else {
                 deleteEdge();
             }
@@ -150,12 +159,11 @@ export function RenFlowProvider({ children }) {
         const targetIsPane = event.target.classList.contains('react-flow__pane');
         const colour = lastFile ? lastFile.color : 'white';
         const fileId = lastFile ? lastFile.id : -1;
-        console.log(lastFile);
 
         if (targetIsPane || createdFromButton) {
 
             if (!lastFile.visible){
-                window.alert("The selected file is not visible, can't add invisible nodes.");
+                Swal.fire("The selected file is not visible, can't add invisible nodes.");
                 return;
             }
 

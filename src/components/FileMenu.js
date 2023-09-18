@@ -3,6 +3,7 @@ import { useRenFlow } from "./RenFlowContext";
 import JSZip from "jszip";
 import { useReactFlow } from "reactflow";
 import { saveAs } from 'file-saver';
+import Swal from "sweetalert2";
 
 const FileMenu = ({ fileExportItems, onFileChange }) => {
     const { projectTitle, 
@@ -16,10 +17,18 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
     const { getNodes, setNodes, getEdges, setEdges, setViewport } = useReactFlow();
 
     const handleNewFile = () => {
-        const userConfirmed = window.confirm("Would you like to create a new project?\nYour progress will be lost!");
-        if (userConfirmed) {
-            window.location.reload();
-        }
+        Swal.fire({
+            title: "Would you like to create a new project?",
+            text: "Your unsaved progress will be lost!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+            cancelButtonText: "No"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.reload();
+            }
+        }); 
     }
 
     const handleOpenFile = useCallback(() => {
@@ -38,7 +47,7 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
                         setOpenFile(flow);
                     }
                 } catch {
-                    window.alert("Something went wrong while opening the file.\n\nAre you sure it's a RenFlow project?");
+                    Swal.fire("Something went wrong while opening the file.\n\nAre you sure it's a RenFlow project?");
                 }
             };
 
@@ -50,7 +59,7 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
     
     const handleExportFile = useCallback(() => {
         if (projectTitle === undefined || projectTitle === null || projectTitle.trim() === '') {
-            window.alert("Please enter a project title.");
+            Swal.fire("Please enter a project title.");
             return;
         }
 
@@ -113,7 +122,8 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
                 });
 
                 if (f.name === undefined || f.name === null || f.name.trim() === '') {
-                    window.alert("One of the files has no name.");
+                    Swal.fire("One of the files has no name.");
+                    return;
                 } else {
                     codeFolder.file(f.name, finalPrint);
                     var originalFileName = f.name; 
@@ -131,7 +141,7 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
     
     const handleSaveFile = useCallback(() => {
         if (projectTitle === undefined || projectTitle === null || projectTitle.trim() === '') {
-            window.alert("Please enter a project title.");
+            Swal.fire("Please enter a project title.");
             return;
         }
 
