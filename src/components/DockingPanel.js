@@ -4,7 +4,7 @@ import { Panel } from "reactflow";
 const DockingPanel = ({ props, side, panelOpen, panelWidth, showFullPanel, controlButtonsSize}) => {
     const [showPanel, setShowPanel] = useState(true); 
     const [fullPanel, setFullPanel] = useState(true);
-
+    
     useEffect(() => {
         setShowPanel(panelOpen);
     }, [panelOpen]);

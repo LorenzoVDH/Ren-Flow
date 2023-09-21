@@ -13,9 +13,10 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
             nodeIdCount, setNodeIdCount,
             setFileSelectorIdCount, fileSelectorIdCount,
             handleLastAppliedFileChange,
-            createSaveObject} = useRenFlow();
+            createSaveObject,
+            handleSketchPadChange} = useRenFlow();
     const { getNodes, setNodes, getEdges, setEdges, setViewport } = useReactFlow();
-
+    
     const handleNewFile = () => {
         Swal.fire({
             title: "Would you like to create a new project?",
@@ -32,6 +33,8 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
     }
 
     const handleOpenFile = useCallback(() => {
+        setNodes([]);
+        setEdges([]);
         const fileInput = document.createElement("input");
         fileInput.type = "file";
 
@@ -42,7 +45,7 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
             fileReader.onload = function (event) {
                 try {
                     const flow = JSON.parse(event.target.result);
-
+                    console.log("Flow", flow.nodes); 
                     if (flow) {
                         setOpenFile(flow);
                     }
@@ -153,21 +156,20 @@ const FileMenu = ({ fileExportItems, onFileChange }) => {
     }, [rfInstance, projectTitle, nodeIdCount]);
 
     const setOpenFile = (flow) => {
-        setNodes([]);
-        setEdges([]);
         onFileChange([]);
         const { x = 0, y = 0, zoom = 1 } = flow.viewport;
         flow.nodes.forEach((n) => {
-            n.data = { ...n.data, onHandleDelete: handleEdgeDeletion };
+            n.data = { ...n.data,  onHandleDelete: handleEdgeDeletion };
         });
-        setNodes(flow.nodes || []);
-        setEdges(flow.edges || []);
+        setNodes(flow.nodes);
+        setEdges(flow.edges);
         setViewport({ x, y, zoom });
         setNodeIdCount(flow.nodeIdCount);
         setFileSelectorIdCount(flow.fileSelectorIdCount);
         handleLastAppliedFileChange(1);
         handleProjectTitleChange(flow.projectTitle);
         onFileChange(JSON.parse(flow.fileExportItems));
+        handleSketchPadChange(flow.sketchPad); 
     }
 
     return (

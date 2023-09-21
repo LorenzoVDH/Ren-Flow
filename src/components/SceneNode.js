@@ -150,7 +150,7 @@ export default memo(({ id, data, selected, isConnectable }) => {
                                     onFocus={(e) => handleOnAnyElementFocussed(true)}
                                     onBlur={() => handleOnAnyElementFocussed(false)}
                                     spellCheck='false'
-                                    style={{ color: 'white', backgroundColor: 'black', fontFamily: 'Lucida Console', fontSize: '8px', resize: 'none', minHeight: '100%' }}
+                                    style={{ color: 'white', backgroundColor: 'black', fontFamily: 'Lucida Console', fontSize: '11px', resize: 'none', minHeight: '100%' }}
                                     disabled={!selected}
                                 />
                             </div> : <></>)}

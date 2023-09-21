@@ -31,11 +31,21 @@ export function RenFlowProvider({ children }) {
     const [globalCode, setGlobalCode] = useState('');
     const [globalShowCode, setGlobalShowCode] = useState(false); 
     const [selectedNode, setSelectedNode] = useState(undefined);
-    const [leftDockingPanelOpen, setLeftDockingPanelOpen] = useState(true); 
+    const [leftDockingPanelOpen, setLeftDockingPanelOpen] = useState(false); 
     const [rightDockingPanelOpen, setRightDockingPanelOpen] = useState(false); 
     const [globalOutputNumber, setGlobalOutputNumber] = useState(0);
     const [globalFileName, setGlobalFileName] = useState(""); 
+    const [codeEditorFontSize, setCodeEditorFontSize] = useState(localStorage.getItem("fontSize") || 18);
+    const [ideaSketchPadOpen, setIdeaSketchpadOpen] = useState(false); 
+    const [ideaSketchPadInput, setIdeaSketchPadInput] = useState(''); 
     
+    const handleCodeEditorFontSizeChange = (newSize) => {
+        if (!isNaN(newSize)) {
+            localStorage.setItem("fontSize", newSize);
+            setCodeEditorFontSize(newSize);
+        }
+    }; 
+
     const handleGlobalCodeChange = (newCode) => {
         if (selectedNode) {
             const updatedNodes = getNodes().map((node) => {
@@ -93,6 +103,10 @@ export function RenFlowProvider({ children }) {
 
     const handleLastAppliedFileChange = (newLastAppliedFile) => {
         setLastAppliedFile(newLastAppliedFile); 
+    }
+    
+    const handleOpenIdeaSketchPad = (ideaSketchPadState) => {
+        setIdeaSketchpadOpen(ideaSketchPadState); 
     }
 
     const getNewNodeId = () => {
@@ -206,8 +220,13 @@ export function RenFlowProvider({ children }) {
         flow.fileSelectorIdCount = fileSelectorIdCount;
         flow.fileExportItems = JSON.stringify(fileList);
         flow.projectTitle = projectTitle;
+        flow.sketchPad = ideaSketchPadInput; 
 
         return JSON.stringify(flow);
+    }
+
+    const handleSketchPadChange = (newText) => {
+        setIdeaSketchPadInput(newText); 
     }
 
     useOnSelectionChange({
@@ -268,7 +287,13 @@ export function RenFlowProvider({ children }) {
         handleGlobalFileNameChange,
         deleteNodeHandler,
         newNodeHandler,
-        createSaveObject
+        createSaveObject,
+        codeEditorFontSize,
+        handleCodeEditorFontSizeChange,
+        ideaSketchPadOpen,
+        handleOpenIdeaSketchPad,
+        ideaSketchPadInput, 
+        handleSketchPadChange
     };
     
     return (
@@ -278,6 +303,6 @@ export function RenFlowProvider({ children }) {
     );
 }
 
-export function useRenFlow() {
+export function  useRenFlow() {
     return useContext(RenFlowContext);
 }

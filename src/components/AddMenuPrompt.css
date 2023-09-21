@@ -1,0 +1,26 @@
+/* Center the content within the dialog */
+.custom-swal-container .custom-dialog {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: '90%'; 
+}
+
+/* Center the label */
+.center-label {
+    text-align: center;
+}
+
+/* Optionally, to remove scrollbars and fit the dialog on the screen */
+.custom-swal-container .swal2-popup {
+    max-height: 90%;
+    max-width: 100%; 
+    overflow-y: auto;
+    max-width: '90%'; 
+}
+
+/* Style for individual menu options */
+.menu-option {
+    margin-top: 10px;
+    max-width: '90%'; 
+}

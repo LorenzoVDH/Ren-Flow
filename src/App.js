@@ -9,15 +9,16 @@ import { RenFlowContext, RenFlowProvider, useRenFlow } from "./components/RenFlo
 import RightDockingPanel from "./components/RightDockingPanel";
 import TouchActionsPanel from "./components/TouchActionsPanel";
 import Swal from "sweetalert2";
+import IdeaSketchPad from "./components/IdeaSketchPad";
 
 const nodeTypes = {
   sceneNode: SceneNode
 };
 
-document.addEventListener("contextmenu", function (e) {
-  e.preventDefault();
-  console.log("rightclicked"); 
-});
+// document.addEventListener("contextmenu", function (e) {
+//   e.preventDefault();
+//   console.log("rightclicked"); 
+// });
 
 const StoryBuilderInteractive = () => {
   const { 
@@ -31,9 +32,9 @@ const StoryBuilderInteractive = () => {
           newNodeHandler,
           globalShowCode,
           handleGlobalShowCodeChange,
-          projectTitle,
-          createSaveObject,
-          rfInstance} = useRenFlow();
+          selectedNode,
+          ideaSketchPadOpen
+        } = useRenFlow();
   
   const handleEdgeDeletion = (sourceHandleToRemove) => {
     const theEdges = getEdges();
@@ -49,35 +50,7 @@ const StoryBuilderInteractive = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const { project, getZoom, getNodes, getEdges, setViewport, zoomIn, zoomOut, fitView, zoomTo } = useReactFlow();
-  const [showCodePanel, setShowCodePanel] = useState(true);
-  const [showMultiOptions, setShowMultiOptions] = useState(false);
 
-  const getNumberOfNodes = () => {
-    return getNodes().filter((n) => n.type === 'sceneNode').length || 0;
-  }
-
-
-  const setExportOrder = (order) => {
-    const selectedNodes = getNodes().filter((n) => (n.selected && n.type === 'sceneNode'));
-    let updatedNodes = getNodes();
-
-    if (order === 'x') {
-      selectedNodes.sort((a, b) => a.position.x - b.position.x);
-    } else if (order === 'y') {
-      selectedNodes.sort((a, b) => a.position.y - b.position.y);
-    }
-
-    selectedNodes.forEach((node, index) => {
-      node.data.exportIndex = index + 1;
-      node.data.editMode = true;
-      node.selected = false;
-    });
-
-    updatedNodes = updatedNodes.filter((node) => !(node.selected && node.type === 'sceneNode')).map((node) => ({ ...node, selected: false }));
-    updatedNodes.push(...selectedNodes);
-    handleGlobalShowCodeChange(true);
-    setNodes(updatedNodes);
-  };
 
   // Use the 'useKeypress' hook to toggle 'showCode' when Enter key is pressed.
   useKeypress('Tab', (e) => {
@@ -90,7 +63,7 @@ const StoryBuilderInteractive = () => {
   });
 
   useKeypress('c', (e) => {
-    if (!anyElementFocussed && !tabbableElementFocussed) {
+    if (!anyElementFocussed && !tabbableElementFocussed && selectedNode !== undefined) {
       setRightDockingPanelOpen(!rightDockingPanelOpen);
     }
   });
@@ -178,12 +151,16 @@ const StoryBuilderInteractive = () => {
       fitView
       zoomto={1}
       deleteKeyCode={[]}>
-        <TouchActionsPanel reactFlowWrapper={reactFlowWrapper} />
-        <LeftDockingPanel />
-        <RightDockingPanel /> 
-        {/* <Panel position={"bottom-right"}>
-          <div>{nodeIdCount}</div>
-        </Panel> */}
+        { ideaSketchPadOpen ? 
+          <IdeaSketchPad /> : 
+          <>
+            <TouchActionsPanel reactFlowWrapper={reactFlowWrapper} />
+            <LeftDockingPanel />
+            <RightDockingPanel /> 
+            {/* <Panel position={"bottom-right"}>
+              <div>{nodeIdCount}</div>
+            </Panel> */}
+          </> }
     </ReactFlow>
   );
 };
