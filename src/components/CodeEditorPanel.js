@@ -25,6 +25,7 @@ const CodeEditorPanel = ({ code, tabSize, setCode, language, elementFocussedHand
                             disabled={notEnabled}
                             style={{ color: 'white', backgroundColor: 'black', fontFamily: 'Lucida Console', fontSize: String(fontSize)+'px', resize: 'none', minHeight: '100%' }}
                         />
+                        <div style={{ backgroundColor: 'black', height: '80%' }} />
                     </div>
                     {/* : <div style={{ width: '95%' }}></div>
             } */}

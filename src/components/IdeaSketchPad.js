@@ -19,6 +19,7 @@ const IdeaSketchPad = () => {
                 onBlur={() => handleOnAnyElementFocussed(false)}
                 style={{width: 'calc(100% - 10px)', minHeight: 'calc(100% - 10px)', fontSize: '18px', resize: 'none', fontFamily: 'Arial', textAlign: 'left' }}
             />
+            <div style={{ backgroundColor: 'white', height: '80%' }} />
         </div>
     </Panel>); 
 };
