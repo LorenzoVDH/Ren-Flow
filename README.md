@@ -1,3 +1,4 @@
-To do: 
+A visual editor for creating Ren'py scripts 
 
-- Implement mobile features 
+Check-out the published version here: 
+https://polygon96.itch.io/renflow 
